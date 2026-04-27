@@ -1,8 +1,8 @@
-FROM python:3.10-alpine
+FROM python:3.10-slim
 
 ENV FLASK_APP=sysinfo
 
-RUN adduser -D sysinfo
+RUN useradd -m sysinfo
 
 WORKDIR /home/sysinfo/
 
@@ -13,15 +13,16 @@ COPY quickrequirements.txt quickrequirements.txt
 COPY sysinfo.py sysinfo.py
 
 RUN mkdir -p static/imagini && chmod -R 777 static
+RUN chmod +x dockerstart.sh
 
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
-    musl-dev \
+    pkg-config \
     python3-dev \
-    pkgconfig \
-    freetype-dev \
-    libpng-dev
+    libfreetype6-dev \
+    libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m venv .venv
 RUN .venv/bin/python -m pip install --upgrade pip setuptools wheel
